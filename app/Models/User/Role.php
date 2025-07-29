@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Models\Master;
+namespace App\Models\User;
 
-use App\Models\User;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Role extends Model
 {
@@ -15,7 +16,7 @@ class Role extends Model
         'slug',
     ];
 
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
