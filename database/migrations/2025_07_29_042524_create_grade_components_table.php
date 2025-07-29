@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('grade_components', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 20);
-            $table->string('slug', 25);
+            $table->string('component_name', 50); // midterm, final, assignment, quiz
+            $table->decimal('weight_percentage', 5, 2); // 25.50
+            $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('grade_components');
     }
 };

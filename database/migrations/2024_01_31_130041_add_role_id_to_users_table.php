@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('role_id')->after('id')->references('id')->on('roles');
+
+            $table->index(['role_id']);
         });
     }
 

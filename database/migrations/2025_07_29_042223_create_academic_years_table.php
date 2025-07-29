@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('academic_years', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 20);
-            $table->string('slug', 25);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('academic_year', 20)->unique(); // 2023/2024
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->timestamps();
 
-            $table->index('status');
+            $table->index(['status', 'start_date']);
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('academic_years');
     }
 };
