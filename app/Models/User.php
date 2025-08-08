@@ -1,7 +1,12 @@
 <?php
 
-namespace App\Models\User;
+namespace App\Models;
 
+use App\Models\User\Admin;
+use App\Models\User\ParentModel;
+use App\Models\User\Role;
+use App\Models\User\Student;
+use App\Models\User\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -83,19 +88,19 @@ class User extends Authenticatable
     public function scopeByRole($query, $roleName)
     {
         return $query->whereHas('role', function ($q) use ($roleName) {
-            $q->where('role_name', $roleName);
+            $q->where('name', $roleName);
         });
     }
 
     // Helper methods
     public function hasRole(string $roleName): bool
     {
-        return $this->role->role_name === $roleName;
+        return $this->role->name === $roleName;
     }
 
     public function getProfileAttribute()
     {
-        switch ($this->role->role_name) {
+        switch ($this->role->slug) {
             case 'admin':
                 return $this->admin;
             case 'teacher':

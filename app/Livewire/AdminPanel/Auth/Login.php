@@ -25,7 +25,7 @@ class Login extends Component
 
     public bool $remember = false;
 
-    public function login(): Redirector
+    public function login()
     {
         $validated = $this->validate();
 

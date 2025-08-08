@@ -145,13 +145,13 @@
                                 <img class="rounded-circle header-profile-user" src="{{ asset('storage/images/users/' . auth()->user()->avatar) }}" alt="Header Avatar">
                             @endif
                             <span class="ms-xl-2 text-start">
-                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ auth()->user()->name }}</span>
+                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ auth()->user()->getProfileAttribute()->full_name }}</span>
                                 <span class="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">{{ auth()->user()->role->name }}</span>
                             </span>
                         </span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}!</h6>
+                        <h6 class="dropdown-header">Welcome {{ auth()->user()->getProfileAttribute()->full_name }}!</h6>
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

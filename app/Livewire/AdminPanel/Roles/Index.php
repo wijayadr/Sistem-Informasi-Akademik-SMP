@@ -2,7 +2,7 @@
 
 namespace App\Livewire\AdminPanel\Roles;
 
-use App\Models\Master\Role;
+use App\Models\User\Role;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
