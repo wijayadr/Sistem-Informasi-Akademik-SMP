@@ -8,6 +8,7 @@ use App\Models\Attendance\MonthlyAttendanceRecap;
 use App\Models\Attendance\StudentAttendance;
 use App\Models\Report\ReportCard;
 use App\Models\Report\StudentReport;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +20,7 @@ class Student extends Model
 
     protected $fillable = [
         'user_id',
-        'student_id',
+        'nis',
         'national_student_id',
         'full_name',
         'birth_date',

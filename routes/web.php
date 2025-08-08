@@ -23,6 +23,25 @@ Route::prefix('admin-panel')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', \App\Livewire\AdminPanel\Dashboard\Index::class)->name('admin.dashboard');
 
+        // Master Data
+        Route::get('/academic-years', App\Livewire\AdminPanel\AcademicYears\Index::class)->name('admin.academic-years.index');
+        Route::get('/subjects', App\Livewire\AdminPanel\Subjects\Index::class)->name('admin.subjects.index');
+
+        // Students
+        Route::prefix('students')->name('admin.students.')->group(function () {
+            Route::get('', App\Livewire\AdminPanel\students\Index::class)->name('index');
+            Route::get('/create', \App\Livewire\AdminPanel\students\Form::class)->name('create');
+            Route::get('/edit/{student}', \App\Livewire\AdminPanel\students\Form::class)->name('edit');
+            Route::get('/{student}/parents', App\Livewire\AdminPanel\Students\ParentManagement::class)->name('parents');
+        });
+
+        // Teachers
+        Route::prefix('teachers')->name('admin.teachers.')->group(function () {
+            Route::get('', App\Livewire\AdminPanel\Teachers\Index::class)->name('index');
+            Route::get('/create', \App\Livewire\AdminPanel\Teachers\Form::class)->name('create');
+            Route::get('/edit/{teacher}', \App\Livewire\AdminPanel\Teachers\Form::class)->name('edit');
+        });
+
         // Roles
         Route::get('/roles', \App\Livewire\AdminPanel\Roles\Index::class)->name('admin.roles.index');
 

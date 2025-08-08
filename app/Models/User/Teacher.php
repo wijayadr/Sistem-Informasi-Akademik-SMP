@@ -6,6 +6,7 @@ use App\Models\Academic\Classes;
 use App\Models\Academic\TeacherSubject;
 use App\Models\Assessment\StudentGrade;
 use App\Models\Attendance\StudentAttendance;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

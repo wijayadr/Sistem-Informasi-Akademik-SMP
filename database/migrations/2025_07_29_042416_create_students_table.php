@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('student_id', 20)->unique(); // NIS
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('nis', 20)->unique(); // NIS
             $table->string('national_student_id', 20)->unique()->nullable(); // NISN
             $table->string('full_name', 100);
             $table->date('birth_date')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'graduated', 'transferred', 'dropout'])->default('active');
             $table->timestamps();
 
-            $table->index('student_id');
+            $table->index('nis');
             $table->index('national_student_id');
             $table->index(['status', 'enrollment_date']);
         });
