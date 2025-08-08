@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('subject_code', 10)->unique();
             $table->string('subject_name', 100);
-            $table->integer('credits')->default(1);
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
