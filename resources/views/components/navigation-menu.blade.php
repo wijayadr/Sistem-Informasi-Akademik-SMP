@@ -35,41 +35,28 @@
                 @if (auth()->user()->role_id == 1)
                     <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
 
-                    <x-nav-link dropdown="masterDataMenu" icon="las la-database">
+                    <x-nav-link dropdown="masterDataMenu" icon="las la-database" :active="Request::routeIs('admin.academic-years.*') || Request::routeIs('admin.subjects.*') || Request::routeIs('admin.grade-components.*')">
                         Master Data
                         <x-slot name="content">
-                            <x-dropdown id="masterDataMenu">
-                                <x-nav-link href="#">Tahun Akademik</x-nav-link>
-                                <x-nav-link href="#">Mata Pelajaran</x-nav-link>
-                                <x-nav-link href="#">Komponen Penilaian</x-nav-link>
+                            <x-dropdown id="masterDataMenu" :active="Request::routeIs('admin.academic-years.*') || Request::routeIs('admin.subjects.*') || Request::routeIs('admin.grade-components.*')">
+                                <x-nav-link href="{{ route('admin.academic-years.index') }}" :active="Request::routeIs('admin.academic-years.*')">Tahun Akademik</x-nav-link>
+                                <x-nav-link href="{{ route('admin.subjects.index') }}" :active="Request::routeIs('admin.subjects.*')">Mata Pelajaran</x-nav-link>
+                                <x-nav-link href="{{ route('admin.grade-components.index') }}" :active="Request::routeIs('admin.grade-components.*')">Komponen Nilai</x-nav-link>
                             </x-dropdown>
                         </x-slot>
                     </x-nav-link>
 
-                    <x-nav-link dropdown="penggunaMenu" icon="lar la-user-circle">
+                    <x-nav-link dropdown="penggunaMenu" icon="lar la-user-circle" :active="Request::routeIs('admin.teachers.*') || Request::routeIs('admin.students.*')">
                         Pengelolaan Pengguna
                         <x-slot name="content">
-                            <x-dropdown id="penggunaMenu">
-                                <x-nav-link href="#">Role & Permission</x-nav-link>
-                                <x-nav-link href="#">Data Admin</x-nav-link>
-                                <x-nav-link href="#">Data Guru</x-nav-link>
-                                <x-nav-link href="#">Data Siswa</x-nav-link>
-                                <x-nav-link href="#">Data Orang Tua</x-nav-link>
+                            <x-dropdown id="penggunaMenu" :active="Request::routeIs('admin.teachers.*') || Request::routeIs('admin.students.*')">
+                                <x-nav-link href="{{ route('admin.teachers.index') }}" :active="Request::routeIs('admin.teachers.*')">Data Guru</x-nav-link>
+                                <x-nav-link href="{{ route('admin.students.index') }}" :active="Request::routeIs('admin.students.*')">Data Siswa</x-nav-link>
                             </x-dropdown>
                         </x-slot>
                     </x-nav-link>
 
-                    <x-nav-link dropdown="akademikMenu" icon="las la-graduation-cap">
-                        Pengelolaan Akademik
-                        <x-slot name="content">
-                            <x-dropdown id="akademikMenu">
-                                <x-nav-link href="#">Kelas per Tahun Akademik</x-nav-link>
-                                <x-nav-link href="#">Pembagian Siswa ke Kelas</x-nav-link>
-                                <x-nav-link href="#">Penugasan Guru-Mata Pelajaran</x-nav-link>
-                                <x-nav-link href="#">Jadwal Pelajaran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('admin.classes.index') }}" icon="las la-graduation-cap" :active="Request::routeIs('admin.classes.*')">Pengelolaan Akademik</x-nav-link>
 
                     <x-nav-link dropdown="absensiMenu" icon="las la-calendar-check">
                         Pengelolaan Absensi

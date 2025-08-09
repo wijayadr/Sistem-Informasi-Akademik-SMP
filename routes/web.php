@@ -26,6 +26,7 @@ Route::prefix('admin-panel')->group(function () {
         // Master Data
         Route::get('/academic-years', App\Livewire\AdminPanel\AcademicYears\Index::class)->name('admin.academic-years.index');
         Route::get('/subjects', App\Livewire\AdminPanel\Subjects\Index::class)->name('admin.subjects.index');
+        Route::get('/grade-components', App\Livewire\AdminPanel\GradeComponents\Index::class)->name('admin.grade-components.index');
 
         // Students
         Route::prefix('students')->name('admin.students.')->group(function () {
@@ -40,6 +41,16 @@ Route::prefix('admin-panel')->group(function () {
             Route::get('', App\Livewire\AdminPanel\Teachers\Index::class)->name('index');
             Route::get('/create', \App\Livewire\AdminPanel\Teachers\Form::class)->name('create');
             Route::get('/edit/{teacher}', \App\Livewire\AdminPanel\Teachers\Form::class)->name('edit');
+        });
+
+        // Classes
+        Route::prefix('classes')->name('admin.classes.')->group(function () {
+            Route::get('', App\Livewire\AdminPanel\Classes\Index::class)->name('index');
+            Route::get('/create', \App\Livewire\AdminPanel\Classes\Form::class)->name('create');
+            Route::get('/edit/{classes}', \App\Livewire\AdminPanel\Classes\Form::class)->name('edit');
+            Route::get('/{class}/students', App\Livewire\AdminPanel\Classes\Students::class)->name('students');
+            Route::get('/{class}/teachers', App\Livewire\AdminPanel\Classes\Teachers::class)->name('teachers');
+            Route::get('/{class}/schedules', App\Livewire\AdminPanel\Classes\Schedules::class)->name('schedules');
         });
 
         // Roles
