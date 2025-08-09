@@ -133,50 +133,11 @@
                 @elseif(auth()->user()->role_id == 3)
                     <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
 
-                    <x-nav-link dropdown="jadwalSiswaMenu" icon="las la-calendar">
-                        Jadwal & Pembelajaran
-                        <x-slot name="content">
-                            <x-dropdown id="jadwalSiswaMenu">
-                                <x-nav-link href="#">Jadwal Pelajaran</x-nav-link>
-                                <x-nav-link href="#">Jadwal Ujian</x-nav-link>
-                                <x-nav-link href="#">Mata Pelajaran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('student.schedules.index') }}" icon="las la-chalkboard-teacher" :active="Request::routeIs('student.schedules.*')">Jadwal Belajar</x-nav-link>
 
-                    <x-nav-link dropdown="nilaiSiswaMenu" icon="las la-chart-line">
-                        Nilai & Prestasi
-                        <x-slot name="content">
-                            <x-dropdown id="nilaiSiswaMenu">
-                                <x-nav-link href="#">Lihat Nilai</x-nav-link>
-                                <x-nav-link href="#">Rekap Nilai</x-nav-link>
-                                <x-nav-link href="#">Rapor Online</x-nav-link>
-                                <x-nav-link href="#">Ranking Kelas</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('student.attendances.index') }}" icon="las la-user-check" :active="Request::routeIs('student.attendances.*')">Kehadiran</x-nav-link>
 
-                    <x-nav-link dropdown="kehadiranSiswaMenu" icon="las la-user-clock">
-                        Kehadiran
-                        <x-slot name="content">
-                            <x-dropdown id="kehadiranSiswaMenu">
-                                <x-nav-link href="#">Lihat Kehadiran</x-nav-link>
-                                <x-nav-link href="#">Rekap Kehadiran</x-nav-link>
-                                <x-nav-link href="#">History Absensi</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="profilSiswaMenu" icon="las la-user">
-                        Profil & Data
-                        <x-slot name="content">
-                            <x-dropdown id="profilSiswaMenu">
-                                <x-nav-link href="#">Profil Siswa</x-nav-link>
-                                <x-nav-link href="#">Data Kelas</x-nav-link>
-                                <x-nav-link href="#">Biodata</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('student.grades.index') }}" icon="las la-clipboard-list" :active="Request::routeIs('student.grades.*')">Nilai</x-nav-link>
 
                 {{-- ORANG TUA MENU --}}
                 @elseif(auth()->user()->role_id == 4)

@@ -23,6 +23,13 @@ Route::prefix('teacher-panel')->name('teacher.')->group(function () {
     Route::get('/grades', App\Livewire\TeacherPanel\Grades\Index::class)->name('grades.index');
 });
 
+Route::prefix('student-panel')->name('student.')->group(function () {
+    Route::get('/schedules', App\Livewire\StudentPanel\Schedules\Index::class)->name('schedules.index');
+    Route::get('/attendance', App\Livewire\StudentPanel\Attendances\Index::class)->name('attendances.index');
+    Route::get('/grades', App\Livewire\StudentPanel\Grades\Index::class)->name('grades.index');
+    Route::get('/reports', App\Livewire\StudentPanel\Reports\Index::class)->name('reports.index');
+});
+
 Route::prefix('admin-panel')->group(function () {
     Route::get('/login', App\Livewire\AdminPanel\Auth\Login::class)->name('admin.login');
 
