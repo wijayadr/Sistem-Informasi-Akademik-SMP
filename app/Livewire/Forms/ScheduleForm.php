@@ -3,6 +3,8 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Academic\Schedule;
+use App\Models\Academic\TeacherSubject;
+use App\Models\Master\AcademicYear;
 use Livewire\Attributes\Rule;
 use Livewire\Form;
 
@@ -34,10 +36,59 @@ class ScheduleForm extends Form
     public function rules()
     {
         return [
-            'teacher_subject_id' => 'required|exists:teacher_subjects,id',
+            'teacher_subject_id' => [
+                'required',
+                'exists:teacher_subjects,id',
+                function ($attribute, $value, $fail) {
+                    // Validate that teacher_subject belongs to selected academic year
+                    if ($this->teacher_subject_id) {
+                        $teacherSubject = TeacherSubject::find($this->teacher_subject_id);
+                        if (!$teacherSubject || $teacherSubject->status !== 'active') {
+                            $fail('Guru dan mata pelajaran tidak aktif atau tidak ditemukan.');
+                        }
+                    }
+                }
+            ],
             'day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'end_time' => [
+                'required',
+                'date_format:H:i',
+                'after:start_time',
+                function ($attribute, $value, $fail) {
+                    // Check for time conflicts
+                    if ($this->start_time && $this->end_time && $this->teacher_subject_id && $this->day) {
+                        $query = Schedule::where('day', $this->day)
+                            ->where('status', 'active')
+                            ->where(function ($q) {
+                                $q->where(function ($subQ) {
+                                    $subQ->whereTime('start_time', '<=', $this->start_time)
+                                         ->whereTime('end_time', '>', $this->start_time);
+                                })->orWhere(function ($subQ) {
+                                    $subQ->whereTime('start_time', '<', $this->end_time)
+                                         ->whereTime('end_time', '>=', $this->end_time);
+                                })->orWhere(function ($subQ) {
+                                    $subQ->whereTime('start_time', '>=', $this->start_time)
+                                         ->whereTime('end_time', '<=', $this->end_time);
+                                });
+                            })
+                            ->whereHas('teacherSubject', function ($q) {
+                                $teacherSubject = TeacherSubject::find($this->teacher_subject_id);
+                                if ($teacherSubject) {
+                                    $q->where('teacher_id', $teacherSubject->teacher_id);
+                                }
+                            });
+
+                        if ($this->schedule) {
+                            $query->where('id', '!=', $this->schedule->id);
+                        }
+
+                        if ($query->exists()) {
+                            $fail('Terdapat konflik jadwal dengan jadwal lain pada waktu yang sama.');
+                        }
+                    }
+                }
+            ],
             'classroom' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:500',
             'status' => 'required|in:active,cancelled',
@@ -125,5 +176,29 @@ class ScheduleForm extends Form
         }
 
         return $hours . ' jam ' . $remainingMinutes . ' menit';
+    }
+
+    public function getAvailableTeacherSubjects(?int $teacherId = null, ?int $academicYearId = null)
+    {
+        $query = TeacherSubject::with(['subject', 'class', 'teacher'])
+            ->where('status', 'active');
+
+        if ($teacherId) {
+            $query->where('teacher_id', $teacherId);
+        }
+
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        } else {
+            // Default to current academic year
+            $query->whereHas('academicYear', function ($q) {
+                $q->where('status', 'active');
+            });
+        }
+
+        return $query->orderBy('teacher_id')
+            ->orderBy('class_id')
+            ->orderBy('subject_id')
+            ->get();
     }
 }

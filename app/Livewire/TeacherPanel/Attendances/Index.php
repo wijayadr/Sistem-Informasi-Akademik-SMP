@@ -6,6 +6,7 @@ use App\Livewire\Forms\StudentAttendanceForm;
 use App\Models\Academic\Schedule;
 use App\Models\Academic\TeacherSubject;
 use App\Models\Attendance\StudentAttendance;
+use App\Models\Master\AcademicYear;
 use App\Models\User\Student;
 use Carbon\Carbon;
 use Livewire\Attributes\Title;
@@ -33,6 +34,9 @@ class Index extends Component
     #[Url()]
     public string $attendance_date = '';
 
+    #[Url()]
+    public string $academic_year_id = '';
+
     public bool $showAttendanceModal = false;
     public bool $editing = false;
     public array $listsForFields = [];
@@ -43,16 +47,35 @@ class Index extends Component
     public function mount(): void
     {
         $this->attendance_date = now()->format('Y-m-d');
+        $this->setDefaultAcademicYear();
         $this->initListsForFields();
+    }
+
+    protected function setDefaultAcademicYear(): void
+    {
+        if (empty($this->academic_year_id)) {
+            $activeAcademicYear = AcademicYear::where('status', 'active')->first();
+            $this->academic_year_id = $activeAcademicYear?->id ?? '';
+        }
     }
 
     protected function initListsForFields(): void
     {
-        // Get teacher subjects for current teacher
+        // Get all academic years
+        $this->listsForFields['academic_years'] = AcademicYear::orderBy('start_date', 'desc')
+            ->pluck('academic_year', 'id');
+
+        // Get teacher subjects for current teacher and selected academic year
         $teacherId = auth()->user()->teacher->id;
 
-        $this->listsForFields['teacher_subjects'] = TeacherSubject::where('teacher_id', $teacherId)
-            ->where('status', 'active')
+        $teacherSubjectsQuery = TeacherSubject::where('teacher_id', $teacherId)
+            ->where('status', 'active');
+
+        if ($this->academic_year_id) {
+            $teacherSubjectsQuery->where('academic_year_id', $this->academic_year_id);
+        }
+
+        $this->listsForFields['teacher_subjects'] = $teacherSubjectsQuery
             ->with(['subject', 'class'])
             ->get()
             ->mapWithKeys(function ($ts) {
@@ -60,7 +83,11 @@ class Index extends Component
             });
 
         $this->listsForFields['schedules'] = Schedule::whereHas('teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId)->where('status', 'active');
+                $query->where('teacher_id', $teacherId)
+                    ->where('status', 'active')
+                    ->when($this->academic_year_id, function ($q) {
+                        $q->where('academic_year_id', $this->academic_year_id);
+                    });
             })
             ->where('status', 'active')
             ->with(['teacherSubject.subject', 'teacherSubject.class'])
@@ -83,10 +110,20 @@ class Index extends Component
 
         $this->listsForFields['subjects'] = TeacherSubject::where('teacher_id', $teacherId)
             ->where('status', 'active')
+            ->when($this->academic_year_id, function ($query) {
+                $query->where('academic_year_id', $this->academic_year_id);
+            })
             ->with('subject')
             ->get()
             ->pluck('subject.subject_name', 'subject.id')
             ->unique();
+    }
+
+    public function updatedAcademicYearId(): void
+    {
+        $this->initListsForFields();
+        $this->resetPage();
+        $this->reset(['search', 'attendance_status_filter', 'subject_filter']);
     }
 
     protected function getDayName($day): string
@@ -106,11 +143,17 @@ class Index extends Component
 
     public function showAttendanceModal(): void
     {
+        if (empty($this->academic_year_id)) {
+            $this->showToastr('error', 'Pilih tahun akademik terlebih dahulu');
+            return;
+        }
+
         $this->editing = false;
         $this->showAttendanceModal = true;
         $this->form->reset();
         $this->form->attendance_date = $this->attendance_date;
         $this->form->input_teacher_id = auth()->user()->teacher->id;
+        $this->form->academic_year_id = $this->academic_year_id;
     }
 
     public function editAttendance($attendanceId): void
@@ -184,7 +227,15 @@ class Index extends Component
 
     public function createAttendanceForSchedule($scheduleId): void
     {
+        if (empty($this->academic_year_id)) {
+            $this->showToastr('error', 'Pilih tahun akademik terlebih dahulu');
+            return;
+        }
+
         $schedule = Schedule::with(['teacherSubject.class.classStudents.student'])
+            ->whereHas('teacherSubject', function ($query) {
+                $query->where('academic_year_id', $this->academic_year_id);
+            })
             ->findOrFail($scheduleId);
 
         $date = Carbon::parse($this->attendance_date);
@@ -199,9 +250,10 @@ class Index extends Component
             return;
         }
 
-        // Get active students for this class
+        // Get active students for this class in the selected academic year
         $students = $schedule->teacherSubject->class->classStudents()
             ->where('status', 'active')
+            ->where('academic_year_id', $this->academic_year_id)
             ->with('student')
             ->get();
 
@@ -240,11 +292,16 @@ class Index extends Component
 
     public function getAttendances()
     {
+        if (empty($this->academic_year_id)) {
+            return collect()->paginate(15);
+        }
+
         $teacherId = auth()->user()->teacher->id;
 
         return StudentAttendance::with(['student', 'schedule.teacherSubject.subject', 'schedule.teacherSubject.class'])
             ->whereHas('schedule.teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId);
+                $query->where('teacher_id', $teacherId)
+                    ->where('academic_year_id', $this->academic_year_id);
             })
             ->when($this->attendance_date, function ($query) {
                 $query->whereDate('attendance_date', $this->attendance_date);
@@ -269,11 +326,17 @@ class Index extends Component
 
     public function getTodaySchedules()
     {
+        if (empty($this->academic_year_id)) {
+            return collect();
+        }
+
         $teacherId = auth()->user()->teacher->id;
         $today = strtolower(now()->format('l'));
 
         return Schedule::whereHas('teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId)->where('status', 'active');
+                $query->where('teacher_id', $teacherId)
+                    ->where('status', 'active')
+                    ->where('academic_year_id', $this->academic_year_id);
             })
             ->where('day', $today)
             ->where('status', 'active')
@@ -284,11 +347,23 @@ class Index extends Component
 
     public function getAttendanceStats()
     {
+        if (empty($this->academic_year_id)) {
+            return [
+                'total' => 0,
+                'present' => 0,
+                'absent' => 0,
+                'late' => 0,
+                'sick' => 0,
+                'permission' => 0,
+            ];
+        }
+
         $teacherId = auth()->user()->teacher->id;
         $date = Carbon::parse($this->attendance_date);
 
         $attendances = StudentAttendance::whereHas('schedule.teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId);
+                $query->where('teacher_id', $teacherId)
+                    ->where('academic_year_id', $this->academic_year_id);
             })
             ->whereDate('attendance_date', $date)
             ->get();
@@ -303,13 +378,27 @@ class Index extends Component
         ];
     }
 
+    public function getSelectedAcademicYear()
+    {
+        if ($this->academic_year_id) {
+            return AcademicYear::find($this->academic_year_id);
+        }
+        return null;
+    }
+
     public function render()
     {
         $attendances = $this->getAttendances();
         $todaySchedules = $this->getTodaySchedules();
         $attendanceStats = $this->getAttendanceStats();
+        $selectedAcademicYear = $this->getSelectedAcademicYear();
 
-        return view('livewire.teacher-panel.attendances.index', compact('attendances', 'todaySchedules', 'attendanceStats'));
+        return view('livewire.teacher-panel.attendances.index', compact(
+            'attendances',
+            'todaySchedules',
+            'attendanceStats',
+            'selectedAcademicYear'
+        ));
     }
 
     public function showToastr($type, $message): void

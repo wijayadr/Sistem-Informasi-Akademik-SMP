@@ -66,14 +66,38 @@ class Classes extends Model
         return $query->where('grade_level', $gradeLevel);
     }
 
-    // Helper methods
-    public function getActiveStudentsCount()
+    public function scopeByAcademicYear($query, $academicYearId)
     {
-        return $this->classStudents()->where('status', 'active')->count();
+        return $query->where('academic_year_id', $academicYearId);
     }
 
-    public function getAvailableCapacity()
+    // Helper methods
+    public function getActiveStudentsCount($academicYearId = null)
     {
-        return $this->capacity - $this->getActiveStudentsCount();
+        $query = $this->classStudents()->where('status', 'active');
+
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        } else {
+            // Use current academic year if not specified
+            $query->whereHas('academicYear', function ($q) {
+                $q->where('status', 'active');
+            });
+        }
+
+        return $query->count();
+    }
+
+    public function getAvailableCapacity($academicYearId = null)
+    {
+        return $this->capacity - $this->getActiveStudentsCount($academicYearId);
+    }
+
+    public function getActiveStudentsInAcademicYear($academicYearId)
+    {
+        return $this->classStudents()
+            ->where('status', 'active')
+            ->where('academic_year_id', $academicYearId)
+            ->with('student');
     }
 }

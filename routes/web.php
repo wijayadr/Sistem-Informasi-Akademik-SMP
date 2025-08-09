@@ -18,16 +18,24 @@ Route::get('/', function () {
 });
 
 Route::prefix('teacher-panel')->name('teacher.')->group(function () {
+    Route::get('/dashboard', App\Livewire\TeacherPanel\Dashboard\Index::class)->name('dashboard.index');
     Route::get('/schedules', App\Livewire\TeacherPanel\Schedules\Index::class)->name('schedules.index');
     Route::get('/attendance', App\Livewire\TeacherPanel\Attendances\Index::class)->name('attendances.index');
     Route::get('/grades', App\Livewire\TeacherPanel\Grades\Index::class)->name('grades.index');
 });
 
 Route::prefix('student-panel')->name('student.')->group(function () {
+    Route::get('/dashboard', App\Livewire\StudentPanel\Dashboard\Index::class)->name('dashboard.index');
     Route::get('/schedules', App\Livewire\StudentPanel\Schedules\Index::class)->name('schedules.index');
     Route::get('/attendance', App\Livewire\StudentPanel\Attendances\Index::class)->name('attendances.index');
     Route::get('/grades', App\Livewire\StudentPanel\Grades\Index::class)->name('grades.index');
     Route::get('/reports', App\Livewire\StudentPanel\Reports\Index::class)->name('reports.index');
+});
+
+Route::prefix('parent-panel')->name('parent.')->group(function () {
+    Route::get('/dashboard', App\Livewire\ParentPanel\Dashboard\Index::class)->name('dashboard.index');
+    Route::get('/attendances', App\Livewire\ParentPanel\Attendances\Index::class)->name('attendances.index');
+    Route::get('/grades', App\Livewire\ParentPanel\Grades\Index::class)->name('grades.index');
 });
 
 Route::prefix('admin-panel')->group(function () {

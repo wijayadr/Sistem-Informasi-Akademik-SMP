@@ -106,7 +106,7 @@
 
                 {{-- GURU MENU --}}
                 @elseif(auth()->user()->role_id == 2)
-                    <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
+                    <x-nav-link href="{{ route('teacher.dashboard.index') }}" icon="las la-tachometer-alt" :active="Request::routeIs('teacher.dashboard.*')">Dashboard</x-nav-link>
 
                     <x-nav-link href="{{ route('teacher.schedules.index') }}" icon="las la-chalkboard-teacher" :active="Request::routeIs('teacher.schedules.*')">Jadwal Mengajar</x-nav-link>
 
@@ -116,7 +116,7 @@
 
                     {{-- Menu khusus untuk Wali Kelas --}}
                     @if(auth()->user()->teacher && auth()->user()->teacher->homeroomClasses->count() > 0)
-                    <x-nav-link dropdown="waliKelasMenu" icon="las la-users">
+                    {{-- <x-nav-link dropdown="waliKelasMenu" icon="las la-users">
                         Wali Kelas
                         <x-slot name="content">
                             <x-dropdown id="waliKelasMenu">
@@ -126,12 +126,12 @@
                                 <x-nav-link href="#">Laporan Perkembangan</x-nav-link>
                             </x-dropdown>
                         </x-slot>
-                    </x-nav-link>
+                    </x-nav-link> --}}
                     @endif
 
                 {{-- SISWA MENU --}}
                 @elseif(auth()->user()->role_id == 3)
-                    <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
+                    <x-nav-link href="{{ route('student.dashboard.index') }}" icon="las la-tachometer-alt" :active="Request::routeIs('student.dashboard.*')">Dashboard</x-nav-link>
 
                     <x-nav-link href="{{ route('student.schedules.index') }}" icon="las la-chalkboard-teacher" :active="Request::routeIs('student.schedules.*')">Jadwal Belajar</x-nav-link>
 
@@ -141,64 +141,11 @@
 
                 {{-- ORANG TUA MENU --}}
                 @elseif(auth()->user()->role_id == 4)
-                    <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
+                    <x-nav-link href="{{ route('parent.dashboard.index') }}" icon="las la-tachometer-alt" :active="Request::routeIs('parent.dashboard.*')">Dashboard</x-nav-link>
 
-                    <x-nav-link dropdown="anakMenu" icon="las la-child">
-                        Data Anak
-                        <x-slot name="content">
-                            <x-dropdown id="anakMenu">
-                                <x-nav-link href="#">Profil Anak</x-nav-link>
-                                <x-nav-link href="#">Data Kelas</x-nav-link>
-                                <x-nav-link href="#">Jadwal Pelajaran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('parent.attendances.index') }}" icon="las la-user-check" :active="Request::routeIs('parent.attendances.*')">Kehadiran Anak</x-nav-link>
 
-                    <x-nav-link dropdown="nilaiAnakMenu" icon="las la-graduation-cap">
-                        Nilai Anak
-                        <x-slot name="content">
-                            <x-dropdown id="nilaiAnakMenu">
-                                <x-nav-link href="#">Lihat Nilai Anak</x-nav-link>
-                                <x-nav-link href="#">Perkembangan Nilai</x-nav-link>
-                                <x-nav-link href="#">Rapor Online</x-nav-link>
-                                <x-nav-link href="#">Ranking Kelas</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="kehadiranAnakMenu" icon="las la-calendar-check">
-                        Kehadiran Anak
-                        <x-slot name="content">
-                            <x-dropdown id="kehadiranAnakMenu">
-                                <x-nav-link href="#">Lihat Kehadiran Anak</x-nav-link>
-                                <x-nav-link href="#">Rekap Kehadiran</x-nav-link>
-                                <x-nav-link href="#">Notifikasi Absensi</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="laporanAnakMenu" icon="las la-file-alt">
-                        Laporan Perkembangan
-                        <x-slot name="content">
-                            <x-dropdown id="laporanAnakMenu">
-                                <x-nav-link href="#">Laporan Bulanan</x-nav-link>
-                                <x-nav-link href="#">Laporan Semester</x-nav-link>
-                                <x-nav-link href="#">Catatan Guru</x-nav-link>
-                                <x-nav-link href="#">Progress Akademik</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="komunikasiMenu" icon="las la-comments">
-                        Komunikasi
-                        <x-slot name="content">
-                            <x-dropdown id="komunikasiMenu">
-                                <x-nav-link href="#">Pesan dari Guru</x-nav-link>
-                                <x-nav-link href="#">Pesan dari Sekolah</x-nav-link>
-                                <x-nav-link href="#">Konsultasi Online</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('parent.grades.index') }}" icon="las la-clipboard-list" :active="Request::routeIs('parent.grades.*')">Nilai Anak</x-nav-link>
                 @endif
             </ul>
         </div>

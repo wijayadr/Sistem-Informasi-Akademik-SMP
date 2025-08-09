@@ -1,22 +1,29 @@
 <div>
-    <!-- Page Header -->
+    <!-- Academic Year Selection -->
     <div class="row mb-4">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <h4 class="card-title mb-2">Penilaian Siswa</h4>
                             <div class="text-muted">
-                                <span class="me-3">Tanggal: {{ \Carbon\Carbon::parse($input_date)->format('d F Y') }}</span>
                                 <span class="me-3">Guru: {{ auth()->user()->teacher->full_name }}</span>
+                                @if($selectedAcademicYear)
+                                    <span class="me-3">Tahun Akademik: {{ $selectedAcademicYear->academic_year }}</span>
+                                @endif
                             </div>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <input type="date" wire:model.live="input_date" class="form-control d-inline-block w-auto me-2">
-                            <button type="button" wire:click="showGradeModal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#showModal">
-                                <i class="ri-add-line me-1"></i> Tambah Nilai
-                            </button>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <select wire:model.live="academic_year_id" class="form-select" style="width: auto;">
+                                    <option value="">-- Pilih Tahun Akademik --</option>
+                                    @foreach($this->listsForFields['academic_years'] as $id => $year)
+                                        <option value="{{ $id }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="date" wire:model.live="input_date" class="form-control" style="width: auto;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -24,289 +31,330 @@
         </div>
     </div>
 
-    <!-- My Classes and Subjects -->
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header border-bottom-dashed">
-                    <div class="d-flex align-items-center">
-                        <h5 class="card-title mb-0 flex-grow-1">
-                            <i class="ri-book-open-line me-2"></i>Mata Pelajaran Yang Diajar
-                        </h5>
+    @if($academic_year_id)
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="text-muted">
+                                    <span class="me-3">Tanggal: {{ \Carbon\Carbon::parse($input_date)->format('d F Y') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button type="button" wire:click="showGradeModal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#showModal">
+                                    <i class="ri-add-line me-1"></i> Tambah Nilai
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    @if($teacherSubjects->count() > 0)
-                        <div class="row">
-                            @foreach($teacherSubjects as $teacherSubject)
-                                <div class="col-md-6 col-lg-4 mb-3">
-                                    <div class="card border h-100">
-                                        <div class="card-body p-3">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <h6 class="card-title mb-0">{{ $teacherSubject->subject->subject_name }}</h6>
-                                                <span class="badge bg-primary-subtle text-primary">{{ $teacherSubject->class->class_name }}</span>
-                                            </div>
-                                            <div class="text-muted small mb-3">
-                                                <div><i class="ri-calendar-line me-1"></i>{{ $teacherSubject->academicYear->academic_year ?? '-' }}</div>
-                                                <div><i class="ri-user-line me-1"></i>{{ $teacherSubject->class->getActiveStudentsCount() }} siswa</div>
-                                                @if($teacherSubject->weekly_teaching_hours)
-                                                    <div><i class="ri-time-line me-1"></i>{{ $teacherSubject->weekly_teaching_hours }} jam/minggu</div>
-                                                @endif
-                                            </div>
-                                            <div class="d-flex gap-2">
-                                                <button type="button"
-                                                        wire:click="$set('form.teacher_subject_id', '{{ $teacherSubject->id }}')"
-                                                        class="btn btn-sm btn-outline-primary flex-fill"
-                                                        data-bs-toggle="modal" data-bs-target="#bulkGradeModal">
-                                                    <i class="ri-file-add-line me-1"></i>Buat Template
-                                                </button>
+            </div>
+        </div>
+
+        <!-- My Classes and Subjects -->
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header border-bottom-dashed">
+                        <div class="d-flex align-items-center">
+                            <h5 class="card-title mb-0 flex-grow-1">
+                                <i class="ri-book-open-line me-2"></i>Mata Pelajaran Yang Diajar
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($teacherSubjects->count() > 0)
+                            <div class="row">
+                                @foreach($teacherSubjects as $teacherSubject)
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card border h-100">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title mb-0">{{ $teacherSubject->subject->subject_name }}</h6>
+                                                    <span class="badge bg-primary-subtle text-primary">{{ $teacherSubject->class->class_name }}</span>
+                                                </div>
+                                                <div class="text-muted small mb-3">
+                                                    <div><i class="ri-calendar-line me-1"></i>{{ $teacherSubject->academicYear->academic_year ?? '-' }}</div>
+                                                    <div><i class="ri-user-line me-1"></i>{{ $teacherSubject->class->getActiveStudentsCount() }} siswa</div>
+                                                    @if($teacherSubject->weekly_teaching_hours)
+                                                        <div><i class="ri-time-line me-1"></i>{{ $teacherSubject->weekly_teaching_hours }} jam/minggu</div>
+                                                    @endif
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button"
+                                                            wire:click="$set('form.teacher_subject_id', '{{ $teacherSubject->id }}')"
+                                                            class="btn btn-sm btn-outline-primary flex-fill"
+                                                            data-bs-toggle="modal" data-bs-target="#bulkGradeModal">
+                                                        <i class="ri-file-add-line me-1"></i>Buat Template
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-3">
-                            <div class="text-muted">
-                                <i class="ri-book-line fs-24 mb-2"></i>
-                                <p class="mb-0">Belum ada mata pelajaran yang diajar</p>
+                                @endforeach
                             </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grade Statistics -->
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Statistik Nilai - {{ \Carbon\Carbon::parse($input_date)->format('d F Y') }}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-primary text-white rounded-circle">{{ $gradeStats['total'] }}</span>
-                            </div>
-                            <h6 class="mb-0">Total Nilai</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-info text-white rounded-circle">{{ $gradeStats['average'] }}</span>
-                            </div>
-                            <h6 class="mb-0">Rata-rata</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-success text-white rounded-circle">{{ $gradeStats['highest'] }}</span>
-                            </div>
-                            <h6 class="mb-0">Tertinggi</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-danger text-white rounded-circle">{{ $gradeStats['lowest'] }}</span>
-                            </div>
-                            <h6 class="mb-0">Terendah</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-success text-white rounded-circle">{{ $gradeStats['above_75'] }}</span>
-                            </div>
-                            <h6 class="mb-0">≥ 75</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="avatar-sm mx-auto mb-2">
-                                <span class="avatar-title bg-warning text-white rounded-circle">{{ $gradeStats['below_60'] }}</span>
-                            </div>
-                            <h6 class="mb-0">< 60</h6>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grades List -->
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header border-bottom-dashed">
-                    <div class="d-flex align-items-center">
-                        <h5 class="card-title mb-0 flex-grow-1">Daftar Nilai Siswa</h5>
-                        @if(count($selectedGrades) > 0)
-                            <div class="flex-shrink-0 me-3">
-                                <div class="d-flex gap-2 align-items-center">
-                                    <input type="number" wire:model="bulkGradeValue" class="form-control form-control-sm"
-                                           placeholder="Nilai" style="width: 80px;" min="0" max="100" step="0.01">
-                                    <button type="button" wire:click="bulkUpdateGrade" class="btn btn-sm btn-warning">
-                                        <i class="ri-edit-line me-1"></i>Update Nilai
-                                    </button>
+                        @else
+                            <div class="text-center py-3">
+                                <div class="text-muted">
+                                    <i class="ri-book-line fs-24 mb-2"></i>
+                                    <p class="mb-0">Belum ada mata pelajaran yang diajar pada tahun akademik ini</p>
                                 </div>
                             </div>
                         @endif
-                        <div class="flex-shrink-0">
-                            <span class="badge bg-primary">{{ $grades->total() }} data</span>
-                        </div>
                     </div>
-                </div>
-
-                <div class="card-body p-0 border-bottom border-bottom-dashed">
-                    <div class="row g-3 p-3">
-                        <div class="col-md-3">
-                            <div class="search-box">
-                                <input type="text" wire:model.live.debounce.150ms="search" class="form-control search border py-2" placeholder="Cari siswa...">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <select wire:model.live="class_filter" class="form-select">
-                                <option value="">Semua Kelas</option>
-                                @foreach($this->listsForFields['classes'] as $id => $name)
-                                    <option value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select wire:model.live="subject_filter" class="form-select">
-                                <option value="">Semua Mata Pelajaran</option>
-                                @foreach($this->listsForFields['subjects'] as $id => $name)
-                                    <option value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select wire:model.live="component_filter" class="form-select">
-                                <option value="">Semua Komponen</option>
-                                @foreach($this->listsForFields['grade_components'] as $id => $name)
-                                    <option value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button wire:click="resetFilters" class="btn btn-outline-secondary w-100">
-                                <i class="ri-refresh-line align-bottom me-1"></i>
-                                Reset
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    @if($grades->count() > 0)
-                        <div class="table-responsive table-card">
-                            <table class="table align-middle table-nowrap" id="gradesTable">
-                                <thead class="table-light text-muted">
-                                    <tr>
-                                        <th style="width: 50px;">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" wire:model.live="selectAll" id="selectAllGrades">
-                                                <label class="form-check-label" for="selectAllGrades"></label>
-                                            </div>
-                                        </th>
-                                        <th class="text-center text-uppercase" style="width: 60px;">No</th>
-                                        <th class="text-uppercase">Siswa</th>
-                                        <th class="text-uppercase">Kelas</th>
-                                        <th class="text-uppercase">Mata Pelajaran</th>
-                                        <th class="text-uppercase">Komponen</th>
-                                        <th class="text-uppercase">Nilai</th>
-                                        <th class="text-uppercase">Grade</th>
-                                        <th class="text-uppercase">Tanggal Input</th>
-                                        <th class="text-uppercase" style="width: 120px;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="list">
-                                    @foreach($grades as $key => $grade)
-                                        <tr wire:key="{{ $grade->id }}">
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" wire:model.live="selectedGrades" value="{{ $grade->id }}" id="grade_{{ $grade->id }}">
-                                                    <label class="form-check-label" for="grade_{{ $grade->id }}"></label>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                {{ $grades->firstItem() + $loop->index }}
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-xs me-3">
-                                                        <span class="avatar-title rounded-circle bg-primary text-white font-size-12">
-                                                            {{ substr($grade->student->full_name, 0, 1) }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <h6 class="mb-0">{{ $grade->student->full_name }}</h6>
-                                                        <small class="text-muted">NIS: {{ $grade->student->nis }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info-subtle text-info">{{ $grade->teacherSubject->class->class_name }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium">{{ $grade->teacherSubject->subject->subject_name }}</span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex flex-column">
-                                                    <span class="fw-medium">{{ $grade->gradeComponent->component_name }}</span>
-                                                    <small class="text-muted">Bobot: {{ $grade->gradeComponent->weight_percentage }}%</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="text-center">
-                                                    <h5 class="mb-0 text-primary">{{ number_format($grade->grade_value, 1) }}</h5>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $gradeLetter = \App\Livewire\Forms\StudentGradeForm::getGradeLetterStatic($grade->grade_value);
-                                                    $gradeBadgeClass = \App\Livewire\Forms\StudentGradeForm::getGradeBadgeClassStatic($grade->grade_value);
-                                                @endphp
-                                                <span class="badge {{ $gradeBadgeClass }} fs-6">{{ $gradeLetter }}</span>
-                                            </td>
-                                            <td>
-                                                <div class="text-muted small">
-                                                    {{ $grade->input_date->format('d/m/Y') }}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <ul class="list-inline hstack gap-2 mb-0">
-                                                    <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Edit">
-                                                        <a href="javascript:void(0)" wire:click="editGrade({{ $grade->id }})" class="text-primary d-inline-block" data-bs-toggle="modal" data-bs-target="#showModal">
-                                                            <i class="ri-pencil-fill fs-16"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Hapus">
-                                                        <a href="javascript:void(0)" class="text-danger d-inline-block remove-item-btn" wire:click="deleteGradeConfirm({{ $grade->id }})">
-                                                            <i class="ri-delete-bin-5-fill fs-16"></i>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <x-pagination :items="$grades" />
-                    @else
-                        <div class="text-center py-5">
-                            <div class="avatar-md mx-auto mb-4">
-                                <div class="avatar-title bg-light text-muted rounded-circle fs-24">
-                                    <i class="ri-award-line"></i>
-                                </div>
-                            </div>
-                            <h5>Belum ada data nilai</h5>
-                            <p class="text-muted">Belum ada data nilai untuk tanggal yang dipilih. Klik tombol "Tambah Nilai" atau gunakan fitur "Buat Template" pada mata pelajaran yang diajar.</p>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Grade Statistics -->
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Statistik Nilai - {{ \Carbon\Carbon::parse($input_date)->format('d F Y') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-primary text-white rounded-circle">{{ $gradeStats['total'] }}</span>
+                                </div>
+                                <h6 class="mb-0">Total Nilai</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-info text-white rounded-circle">{{ $gradeStats['average'] }}</span>
+                                </div>
+                                <h6 class="mb-0">Rata-rata</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-success text-white rounded-circle">{{ $gradeStats['highest'] }}</span>
+                                </div>
+                                <h6 class="mb-0">Tertinggi</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-danger text-white rounded-circle">{{ $gradeStats['lowest'] }}</span>
+                                </div>
+                                <h6 class="mb-0">Terendah</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-success text-white rounded-circle">{{ $gradeStats['above_75'] }}</span>
+                                </div>
+                                <h6 class="mb-0">≥ 75</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <span class="avatar-title bg-warning text-white rounded-circle">{{ $gradeStats['below_60'] }}</span>
+                                </div>
+                                <h6 class="mb-0">< 60</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grades List -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header border-bottom-dashed">
+                        <div class="d-flex align-items-center">
+                            <h5 class="card-title mb-0 flex-grow-1">Daftar Nilai Siswa</h5>
+                            @if(count($selectedGrades) > 0)
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <input type="number" wire:model="bulkGradeValue" class="form-control form-control-sm"
+                                               placeholder="Nilai" style="width: 80px;" min="0" max="100" step="0.01">
+                                        <button type="button" wire:click="bulkUpdateGrade" class="btn btn-sm btn-warning">
+                                            <i class="ri-edit-line me-1"></i>Update Nilai
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-primary">{{ $grades->total() }} data</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0 border-bottom border-bottom-dashed">
+                        <div class="row g-3 p-3">
+                            <div class="col-md-3">
+                                <div class="search-box">
+                                    <input type="text" wire:model.live.debounce.150ms="search" class="form-control search border py-2" placeholder="Cari siswa...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select wire:model.live="class_filter" class="form-select">
+                                    <option value="">Semua Kelas</option>
+                                    @foreach($this->listsForFields['classes'] as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select wire:model.live="subject_filter" class="form-select">
+                                    <option value="">Semua Mata Pelajaran</option>
+                                    @foreach($this->listsForFields['subjects'] as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select wire:model.live="component_filter" class="form-select">
+                                    <option value="">Semua Komponen</option>
+                                    @foreach($this->listsForFields['grade_components'] as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button wire:click="resetFilters" class="btn btn-outline-secondary w-100">
+                                    <i class="ri-refresh-line align-bottom me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        @if($grades->count() > 0)
+                            <div class="table-responsive table-card">
+                                <table class="table align-middle table-nowrap" id="gradesTable">
+                                    <thead class="table-light text-muted">
+                                        <tr>
+                                            <th style="width: 50px;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" wire:model.live="selectAll" id="selectAllGrades">
+                                                    <label class="form-check-label" for="selectAllGrades"></label>
+                                                </div>
+                                            </th>
+                                            <th class="text-center text-uppercase" style="width: 60px;">No</th>
+                                            <th class="text-uppercase">Siswa</th>
+                                            <th class="text-uppercase">Kelas</th>
+                                            <th class="text-uppercase">Mata Pelajaran</th>
+                                            <th class="text-uppercase">Komponen</th>
+                                            <th class="text-uppercase">Nilai</th>
+                                            <th class="text-uppercase">Grade</th>
+                                            <th class="text-uppercase">Tanggal Input</th>
+                                            <th class="text-uppercase" style="width: 120px;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="list">
+                                        @foreach($grades as $key => $grade)
+                                            <tr wire:key="{{ $grade->id }}">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" wire:model.live="selectedGrades" value="{{ $grade->id }}" id="grade_{{ $grade->id }}">
+                                                        <label class="form-check-label" for="grade_{{ $grade->id }}"></label>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ $grades->firstItem() + $loop->index }}
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-xs me-3">
+                                                            <span class="avatar-title rounded-circle bg-primary text-white font-size-12">
+                                                                {{ substr($grade->student->full_name, 0, 1) }}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0">{{ $grade->student->full_name }}</h6>
+                                                            <small class="text-muted">NIS: {{ $grade->student->nis }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info-subtle text-info">{{ $grade->teacherSubject->class->class_name }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-medium">{{ $grade->teacherSubject->subject->subject_name }}</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex flex-column">
+                                                        <span class="fw-medium">{{ $grade->gradeComponent->component_name }}</span>
+                                                        <small class="text-muted">Bobot: {{ $grade->gradeComponent->weight_percentage }}%</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="text-center">
+                                                        <h5 class="mb-0 text-primary">{{ number_format($grade->grade_value, 1) }}</h5>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $gradeLetter = \App\Livewire\Forms\StudentGradeForm::getGradeLetterStatic($grade->grade_value);
+                                                        $gradeBadgeClass = \App\Livewire\Forms\StudentGradeForm::getGradeBadgeClassStatic($grade->grade_value);
+                                                    @endphp
+                                                    <span class="badge {{ $gradeBadgeClass }} fs-6">{{ $gradeLetter }}</span>
+                                                </td>
+                                                <td>
+                                                    <div class="text-muted small">
+                                                        {{ $grade->input_date->format('d/m/Y') }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <ul class="list-inline hstack gap-2 mb-0">
+                                                        <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Edit">
+                                                            <a href="javascript:void(0)" wire:click="editGrade({{ $grade->id }})" class="text-primary d-inline-block" data-bs-toggle="modal" data-bs-target="#showModal">
+                                                                <i class="ri-pencil-fill fs-16"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Hapus">
+                                                            <a href="javascript:void(0)" class="text-danger d-inline-block remove-item-btn" wire:click="deleteGradeConfirm({{ $grade->id }})">
+                                                                <i class="ri-delete-bin-5-fill fs-16"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <x-pagination :items="$grades" />
+                        @else
+                            <div class="text-center py-5">
+                                <div class="avatar-md mx-auto mb-4">
+                                    <div class="avatar-title bg-light text-muted rounded-circle fs-24">
+                                        <i class="ri-award-line"></i>
+                                    </div>
+                                </div>
+                                <h5>Belum ada data nilai</h5>
+                                <p class="text-muted">Belum ada data nilai untuk tanggal yang dipilih. Klik tombol "Tambah Nilai" atau gunakan fitur "Buat Template" pada mata pelajaran yang diajar.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <!-- No Academic Year Selected -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title bg-light text-muted rounded-circle fs-24">
+                                <i class="ri-calendar-line"></i>
+                            </div>
+                        </div>
+                        <h5>Pilih Tahun Akademik</h5>
+                        <p class="text-muted">Silakan pilih tahun akademik terlebih dahulu untuk mengelola data nilai siswa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Grade Modal -->
     <x-modal name="showModal" :title="$editing ? 'Edit Nilai Siswa' : 'Tambah Nilai Siswa'" :maxWidth="'xl'">
@@ -487,6 +535,12 @@
 .component-card:hover {
     border-color: #0d6efd;
     box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.075);
+}
+
+.academic-year-selector {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 0.5rem;
 }
 </style>
 @endpush

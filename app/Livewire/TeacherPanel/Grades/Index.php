@@ -6,6 +6,7 @@ use App\Livewire\Forms\StudentGradeForm;
 use App\Models\Academic\TeacherSubject;
 use App\Models\Assessment\GradeComponent;
 use App\Models\Assessment\StudentGrade;
+use App\Models\Master\AcademicYear;
 use App\Models\User\Student;
 use Carbon\Carbon;
 use Livewire\Attributes\Title;
@@ -36,6 +37,9 @@ class Index extends Component
     #[Url()]
     public string $input_date = '';
 
+    #[Url()]
+    public string $academic_year_id = '';
+
     public bool $showGradeModal = false;
     public bool $editing = false;
     public array $listsForFields = [];
@@ -46,33 +50,58 @@ class Index extends Component
     public function mount(): void
     {
         $this->input_date = now()->format('Y-m-d');
+        $this->setDefaultAcademicYear();
         $this->initListsForFields();
+    }
+
+    protected function setDefaultAcademicYear(): void
+    {
+        if (empty($this->academic_year_id)) {
+            $activeAcademicYear = AcademicYear::where('status', 'active')->first();
+            $this->academic_year_id = $activeAcademicYear?->id ?? '';
+        }
     }
 
     protected function initListsForFields(): void
     {
+        // Get all academic years
+        $this->listsForFields['academic_years'] = AcademicYear::orderBy('start_date', 'desc')
+            ->pluck('academic_year', 'id');
+
         $teacherId = auth()->user()->teacher->id;
 
-        // Get teacher subjects for current teacher
-        $this->listsForFields['teacher_subjects'] = TeacherSubject::where('teacher_id', $teacherId)
-            ->where('status', 'active')
+        // Get teacher subjects for current teacher and selected academic year
+        $teacherSubjectsQuery = TeacherSubject::where('teacher_id', $teacherId)
+            ->where('status', 'active');
+
+        if ($this->academic_year_id) {
+            $teacherSubjectsQuery->where('academic_year_id', $this->academic_year_id);
+        }
+
+        $this->listsForFields['teacher_subjects'] = $teacherSubjectsQuery
             ->with(['subject', 'class'])
             ->get()
             ->mapWithKeys(function ($ts) {
                 return [$ts->id => $ts->class->class_name . ' - ' . $ts->subject->subject_name];
             });
 
-        // Get classes taught by teacher
+        // Get classes taught by teacher in selected academic year
         $this->listsForFields['classes'] = TeacherSubject::where('teacher_id', $teacherId)
             ->where('status', 'active')
+            ->when($this->academic_year_id, function ($query) {
+                $query->where('academic_year_id', $this->academic_year_id);
+            })
             ->with('class')
             ->get()
             ->pluck('class.class_name', 'class.id')
             ->unique();
 
-        // Get subjects taught by teacher
+        // Get subjects taught by teacher in selected academic year
         $this->listsForFields['subjects'] = TeacherSubject::where('teacher_id', $teacherId)
             ->where('status', 'active')
+            ->when($this->academic_year_id, function ($query) {
+                $query->where('academic_year_id', $this->academic_year_id);
+            })
             ->with('subject')
             ->get()
             ->pluck('subject.subject_name', 'subject.id')
@@ -85,15 +114,24 @@ class Index extends Component
         $this->listsForFields['students'] = collect();
     }
 
+    public function updatedAcademicYearId(): void
+    {
+        $this->initListsForFields();
+        $this->resetPage();
+        $this->reset(['search', 'class_filter', 'subject_filter', 'component_filter']);
+    }
+
     public function updatedFormTeacherSubjectId(): void
     {
         if ($this->form->teacher_subject_id) {
             $teacherSubject = TeacherSubject::with('class.classStudents.student')
+                ->where('academic_year_id', $this->academic_year_id)
                 ->find($this->form->teacher_subject_id);
 
             if ($teacherSubject) {
                 $this->listsForFields['students'] = $teacherSubject->class->classStudents
                     ->where('status', 'active')
+                    ->where('academic_year_id', $this->academic_year_id)
                     ->pluck('student.full_name', 'student.id');
             }
         } else {
@@ -103,11 +141,17 @@ class Index extends Component
 
     public function showGradeModal(): void
     {
+        if (empty($this->academic_year_id)) {
+            $this->showToastr('error', 'Pilih tahun akademik terlebih dahulu');
+            return;
+        }
+
         $this->editing = false;
         $this->showGradeModal = true;
         $this->form->reset();
         $this->form->input_date = $this->input_date;
         $this->form->input_teacher_id = auth()->user()->teacher->id;
+        $this->form->academic_year_id = $this->academic_year_id;
         $this->listsForFields['students'] = collect();
     }
 
@@ -192,12 +236,18 @@ class Index extends Component
 
     public function createBulkGrades(): void
     {
+        if (empty($this->academic_year_id)) {
+            $this->showToastr('error', 'Pilih tahun akademik terlebih dahulu');
+            return;
+        }
+
         if (!$this->form->teacher_subject_id || !$this->form->grade_component_id) {
             $this->showToastr('error', 'Pilih mata pelajaran dan komponen nilai terlebih dahulu');
             return;
         }
 
         $teacherSubject = TeacherSubject::with('class.classStudents.student')
+            ->where('academic_year_id', $this->academic_year_id)
             ->find($this->form->teacher_subject_id);
 
         if (!$teacherSubject) {
@@ -206,7 +256,8 @@ class Index extends Component
         }
 
         $students = $teacherSubject->class->classStudents
-            ->where('status', 'active');
+            ->where('status', 'active')
+            ->where('academic_year_id', $this->academic_year_id);
 
         $createdCount = 0;
         foreach ($students as $classStudent) {
@@ -261,11 +312,16 @@ class Index extends Component
 
     public function getGrades()
     {
+        if (empty($this->academic_year_id)) {
+            return collect()->paginate(15);
+        }
+
         $teacherId = auth()->user()->teacher->id;
 
         return StudentGrade::with(['student', 'teacherSubject.subject', 'teacherSubject.class', 'gradeComponent', 'inputTeacher'])
             ->whereHas('teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId);
+                $query->where('teacher_id', $teacherId)
+                    ->where('academic_year_id', $this->academic_year_id);
             })
             ->when($this->input_date, function ($query) {
                 $query->whereDate('input_date', $this->input_date);
@@ -295,11 +351,23 @@ class Index extends Component
 
     public function getGradeStats()
     {
+        if (empty($this->academic_year_id)) {
+            return [
+                'total' => 0,
+                'average' => 0,
+                'highest' => 0,
+                'lowest' => 0,
+                'above_75' => 0,
+                'below_60' => 0,
+            ];
+        }
+
         $teacherId = auth()->user()->teacher->id;
         $date = Carbon::parse($this->input_date);
 
         $grades = StudentGrade::whereHas('teacherSubject', function ($query) use ($teacherId) {
-                $query->where('teacher_id', $teacherId);
+                $query->where('teacher_id', $teacherId)
+                    ->where('academic_year_id', $this->academic_year_id);
             })
             ->whereDate('input_date', $date)
             ->get();
@@ -320,13 +388,26 @@ class Index extends Component
 
     public function getTeacherSubjects()
     {
+        if (empty($this->academic_year_id)) {
+            return collect();
+        }
+
         $teacherId = auth()->user()->teacher->id;
 
         return TeacherSubject::where('teacher_id', $teacherId)
             ->where('status', 'active')
+            ->where('academic_year_id', $this->academic_year_id)
             ->with(['subject', 'class', 'academicYear'])
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    public function getSelectedAcademicYear()
+    {
+        if ($this->academic_year_id) {
+            return AcademicYear::find($this->academic_year_id);
+        }
+        return null;
     }
 
     public function render()
@@ -334,8 +415,14 @@ class Index extends Component
         $grades = $this->getGrades();
         $gradeStats = $this->getGradeStats();
         $teacherSubjects = $this->getTeacherSubjects();
+        $selectedAcademicYear = $this->getSelectedAcademicYear();
 
-        return view('livewire.teacher-panel.grades.index', compact('grades', 'gradeStats', 'teacherSubjects'));
+        return view('livewire.teacher-panel.grades.index', compact(
+            'grades',
+            'gradeStats',
+            'teacherSubjects',
+            'selectedAcademicYear'
+        ));
     }
 
     public function showToastr($type, $message): void

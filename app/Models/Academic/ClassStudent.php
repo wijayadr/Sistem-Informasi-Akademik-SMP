@@ -43,6 +43,7 @@ class ClassStudent extends Model
     }
 
     // Scopes
+    // Scopes
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
@@ -53,5 +54,16 @@ class ClassStudent extends Model
         return $query->whereHas('academicYear', function ($q) {
             $q->where('status', 'active');
         });
+    }
+
+    public function scopeByAcademicYear($query, $academicYearId)
+    {
+        return $query->where('academic_year_id', $academicYearId);
+    }
+
+    public function scopeActiveInAcademicYear($query, $academicYearId)
+    {
+        return $query->where('status', 'active')
+                     ->where('academic_year_id', $academicYearId);
     }
 }
