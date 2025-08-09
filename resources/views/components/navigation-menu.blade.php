@@ -108,51 +108,11 @@
                 @elseif(auth()->user()->role_id == 2)
                     <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
 
-                    <x-nav-link dropdown="mengajarMenu" icon="las la-chalkboard-teacher">
-                        Kegiatan Mengajar
-                        <x-slot name="content">
-                            <x-dropdown id="mengajarMenu">
-                                <x-nav-link href="#">Jadwal Mengajar</x-nav-link>
-                                <x-nav-link href="#">Daftar Kelas</x-nav-link>
-                                <x-nav-link href="#">Mata Pelajaran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('teacher.schedules.index') }}" icon="las la-chalkboard-teacher" :active="Request::routeIs('teacher.schedules.*')">Jadwal Mengajar</x-nav-link>
 
-                    <x-nav-link dropdown="absensiGuruMenu" icon="las la-user-check">
-                        Absensi Siswa
-                        <x-slot name="content">
-                            <x-dropdown id="absensiGuruMenu">
-                                <x-nav-link href="#">Input Kehadiran</x-nav-link>
-                                <x-nav-link href="#">Rekap Kehadiran Kelas</x-nav-link>
-                                <x-nav-link href="#">Laporan Kehadiran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('teacher.attendances.index') }}" icon="las la-user-check" :active="Request::routeIs('teacher.attendances.*')">Kehadiran</x-nav-link>
 
-                    <x-nav-link dropdown="nilaiGuruMenu" icon="las la-clipboard-list">
-                        Penilaian Siswa
-                        <x-slot name="content">
-                            <x-dropdown id="nilaiGuruMenu">
-                                <x-nav-link href="#">Input Nilai Harian</x-nav-link>
-                                <x-nav-link href="#">Input Nilai UTS</x-nav-link>
-                                <x-nav-link href="#">Input Nilai UAS</x-nav-link>
-                                <x-nav-link href="#">Input Nilai Tugas</x-nav-link>
-                                <x-nav-link href="#">Rekap Nilai Siswa</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="laporanGuruMenu" icon="las la-file-alt">
-                        Laporan Kelas
-                        <x-slot name="content">
-                            <x-dropdown id="laporanGuruMenu">
-                                <x-nav-link href="#">Laporan Nilai Kelas</x-nav-link>
-                                <x-nav-link href="#">Laporan Kehadiran Kelas</x-nav-link>
-                                <x-nav-link href="#">Progress Belajar Siswa</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('teacher.grades.index') }}" icon="las la-clipboard-list" :active="Request::routeIs('teacher.grades.*')">Kelola Nilai</x-nav-link>
 
                     {{-- Menu khusus untuk Wali Kelas --}}
                     @if(auth()->user()->teacher && auth()->user()->teacher->homeroomClasses->count() > 0)
@@ -279,13 +239,6 @@
                         </x-slot>
                     </x-nav-link>
                 @endif
-
-                {{-- Menu umum untuk semua role --}}
-                <li class="menu-title"><span data-key="t-account">Akun</span></li>
-                <x-nav-link href="#" icon="las la-user-cog">Profil Saya</x-nav-link>
-                <x-nav-link href="#" icon="las la-key">Ubah Password</x-nav-link>
-                <x-nav-link href="#" icon="las la-sign-out-alt">Logout</x-nav-link>
-
             </ul>
         </div>
         <!-- Sidebar -->

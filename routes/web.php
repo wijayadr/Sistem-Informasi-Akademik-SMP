@@ -17,11 +17,20 @@ Route::get('/', function () {
     return redirect(route('admin.login'));
 });
 
+Route::prefix('teacher-panel')->name('teacher.')->group(function () {
+    Route::get('/schedules', App\Livewire\TeacherPanel\Schedules\Index::class)->name('schedules.index');
+    Route::get('/attendance', App\Livewire\TeacherPanel\Attendances\Index::class)->name('attendances.index');
+    Route::get('/grades', App\Livewire\TeacherPanel\Grades\Index::class)->name('grades.index');
+});
+
 Route::prefix('admin-panel')->group(function () {
     Route::get('/login', App\Livewire\AdminPanel\Auth\Login::class)->name('admin.login');
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', \App\Livewire\AdminPanel\Dashboard\Index::class)->name('admin.dashboard');
+
+        // Teacher Panel
+
 
         // Master Data
         Route::get('/academic-years', App\Livewire\AdminPanel\AcademicYears\Index::class)->name('admin.academic-years.index');
