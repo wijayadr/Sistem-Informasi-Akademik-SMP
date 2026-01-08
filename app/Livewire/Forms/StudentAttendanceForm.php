@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\Academic\Schedule;
 use App\Models\Attendance\StudentAttendance;
 use Carbon\Carbon;
 use Livewire\Attributes\Validate;
@@ -55,7 +56,7 @@ class StudentAttendanceForm extends Form
         $this->validate();
 
         // Validate that the schedule belongs to the selected academic year
-        $schedule = \App\Models\Academic\Schedule::whereHas('teacherSubject', function ($query) {
+        $schedule = Schedule::whereHas('teacherSubject', function ($query) {
             $query->where('academic_year_id', $this->academic_year_id);
         })->find($this->schedule_id);
 
@@ -92,7 +93,7 @@ class StudentAttendanceForm extends Form
             'notes' => $this->notes,
             'check_in_time' => $this->check_in_time ? Carbon::createFromFormat('H:i', $this->check_in_time) : null,
             'check_out_time' => $this->check_out_time ? Carbon::createFromFormat('H:i', $this->check_out_time) : null,
-            'input_teacher_id' => $this->input_teacher_id,
+            'input_teacher_id' => auth()->user()->teacher->id,
         ]);
 
         $this->reset();

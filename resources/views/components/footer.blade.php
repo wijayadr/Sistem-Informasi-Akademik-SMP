@@ -4,11 +4,11 @@
             <div class="col-sm-6">
                 <script>
                     document.write(new Date().getFullYear())
-                </script> © SIMK
+                </script> © SIAKAD
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by SIMK Team
+                    Design & Develop by SIAKAD Team
                 </div>
             </div>
         </div>

@@ -88,7 +88,7 @@ class StudentGradeForm extends Form
             'grade_value' => $this->grade_value,
             'input_date' => $this->input_date,
             'notes' => $this->notes,
-            'input_teacher_id' => $this->input_teacher_id,
+            'input_teacher_id' => auth()->user()->teacher->id,
         ]);
 
         $this->reset();

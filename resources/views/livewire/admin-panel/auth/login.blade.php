@@ -1,4 +1,4 @@
-<!-- auth-page wrapper -->
+{{-- <!-- auth-page wrapper -->
 <div class="auth-page-wrapper auth-bg-cover py-5 d-flex justify-content-center align-items-center min-vh-100">
     <div class="bg-overlay"></div>
     <!-- auth-page content -->
@@ -91,7 +91,7 @@
                 <div class="col-lg-12">
                     <div class="text-center">
                         <p class="mb-0">&copy;
-                            <script>document.write(new Date().getFullYear())</script> SIMK. Crafted with <i class="mdi mdi-heart text-danger"></i> by SIMK Team
+                            <script>document.write(new Date().getFullYear())</script> SIAKAD. Crafted with <i class="mdi mdi-heart text-danger"></i> by SIAKAD Team
                         </p>
                     </div>
                 </div>
@@ -100,4 +100,72 @@
     </footer>
     <!-- end Footer -->
 </div>
-<!-- end auth-page-wrapper -->
+<!-- end auth-page-wrapper --> --}}
+
+<div class="auth-page-wrapper">
+    <!-- Animated Background -->
+    <div class="auth-bg-particles"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+                <!-- Login Card -->
+                <div class="auth-card">
+                    <div class="card-body p-5">
+                        <!-- Welcome Text -->
+                        <div class="text-center mb-4">
+                            <h3 class="welcome-text">Selamat Datang!</h3>
+                            <p class="text-muted mb-0">SISTEM INFORMASI AKADEMIK DI SMP NEGERI 1 TULUNG SELAPAN</p>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form wire:submit.prevent="login">
+                            @csrf
+
+                            <div class="mb-3">
+                                <x-input-label for="username" value="Username" required />
+                                <x-text-input wire:model="username" type="text" id="username" placeholder="Username" :error="$errors->get('username')" />
+                                <x-input-error :messages="$errors->get('username')"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <x-input-label for="password" value="Password" required/>
+                                <div class="position-relative auth-pass-inputgroup mb-3">
+                                    <x-text-input wire:model="password" type="password" class="pe-5 password-input"  placeholder="Password" id="password-input" :error="$errors->get('password')"/>
+                                    <x-input-error :messages="$errors->get('password')"/>
+                                </div>
+                            </div>
+
+                            <!-- Sign In Button -->
+                            <div class="mb-4">
+                                <button class="btn btn-primary w-100" type="submit">
+                                    <i class="ri-login-circle-line me-2"></i> Masuk
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="position-fixed bottom-0 start-0 w-100 py-3" style="z-index: 1;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0 text-white-50">
+                        &copy; <script>document.write(new Date().getFullYear())</script> SIAKAD. Crafted with <i class="mdi mdi-heart text-danger"></i> by SIAKAD Team
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>

@@ -39,7 +39,18 @@ class Login extends Component
             } else {
                 $this->remember ? Auth::attempt($this->only('username', 'password'), true) : Auth::attempt($this->only('username', 'password'));
 
-                return redirect()->route('admin.dashboard');
+                $redirect = 'admin.dashboard';
+                if (Auth::user()->role_id === 1) {
+                    $redirect = 'admin.dashboard';
+                } else if (Auth::user()->role_id === 2) {
+                    $redirect = 'teacher.dashboard.index';
+                } else if (Auth::user()->role_id === 3) {
+                    $redirect = 'student.dashboard.index';
+                } else if (Auth::user()->role_id === 4) {
+                    $redirect = 'parent.dashboard.index';
+                }
+
+                return redirect()->route($redirect);
             }
         }
     }

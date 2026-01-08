@@ -7,7 +7,7 @@
                 <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <h3 style="line-height: 65px; color: white; font-family: 'IBM Plex Sans', sans-serif;">SIMK</h3>
+                <h3 style="line-height: 65px; font-family: 'IBM Plex Sans', sans-serif;">SIAKAD</h3>
             </span>
         </a>
         <!-- Light Logo-->
@@ -16,7 +16,7 @@
                 <img src="{{ asset('assets/images/logo-dark.png') }}" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <h3 style="line-height: 65px; color: white; font-family: 'IBM Plex Sans', sans-serif;">SIMK</h3>
+                <h3 style="line-height: 65px; color: white; font-family: 'IBM Plex Sans', sans-serif;">SIAKAD</h3>
             </span>
         </a>
         <button type="button" class="btn btn-sm fs-20 header-item float-end btn-vertical-sm-hover p-0" id="vertical-hover">
@@ -33,7 +33,7 @@
 
                 {{-- ADMIN MENU --}}
                 @if (auth()->user()->role_id == 1)
-                    <x-nav-link href="#" icon="las la-tachometer-alt">Dashboard</x-nav-link>
+                    <x-nav-link href="{{ route('admin.dashboard') }}" icon="las la-tachometer-alt" :active="Request::routeIs('admin.dashboard')">Dashboard</x-nav-link>
 
                     <x-nav-link dropdown="masterDataMenu" icon="las la-database" :active="Request::routeIs('admin.academic-years.*') || Request::routeIs('admin.subjects.*') || Request::routeIs('admin.grade-components.*')">
                         Master Data
@@ -58,52 +58,9 @@
 
                     <x-nav-link href="{{ route('admin.classes.index') }}" icon="las la-graduation-cap" :active="Request::routeIs('admin.classes.*')">Pengelolaan Akademik</x-nav-link>
 
-                    <x-nav-link dropdown="absensiMenu" icon="las la-calendar-check">
-                        Pengelolaan Absensi
-                        <x-slot name="content">
-                            <x-dropdown id="absensiMenu">
-                                <x-nav-link href="#">Absensi Harian</x-nav-link>
-                                <x-nav-link href="#">Rekap Absensi Bulanan</x-nav-link>
-                                <x-nav-link href="#">Laporan Kehadiran</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
+                    <x-nav-link href="{{ route('admin.attendances.index') }}" icon="las la-calendar-check" :active="Request::routeIs('admin.attendances.*')">Absensi</x-nav-link>
 
-                    <x-nav-link dropdown="nilaiMenu" icon="las la-clipboard-list">
-                        Pengelolaan Nilai
-                        <x-slot name="content">
-                            <x-dropdown id="nilaiMenu">
-                                <x-nav-link href="#">Input Nilai</x-nav-link>
-                                <x-nav-link href="#">Validasi Nilai</x-nav-link>
-                                <x-nav-link href="#">Rapor Siswa</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="laporanAdminMenu" icon="las la-file-alt">
-                        Laporan & Cetak
-                        <x-slot name="content">
-                            <x-dropdown id="laporanAdminMenu">
-                                <x-nav-link href="#">Laporan Siswa (Student Reports)</x-nav-link>
-                                <x-nav-link href="#">Cetak Rapor (Report Cards)</x-nav-link>
-                                <x-nav-link href="#">Rekap Absensi Bulanan</x-nav-link>
-                                <x-nav-link href="#">Laporan Kinerja Akademik</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
-                    <x-nav-link dropdown="sistemMenu" icon="las la-cogs">
-                        Pengaturan Sistem
-                        <x-slot name="content">
-                            <x-dropdown id="sistemMenu">
-                                <x-nav-link href="#">Backup Data</x-nav-link>
-                                <x-nav-link href="#">Restore Data</x-nav-link>
-                                <x-nav-link href="#">Audit Log</x-nav-link>
-                                <x-nav-link href="#">Pengaturan Aplikasi</x-nav-link>
-                            </x-dropdown>
-                        </x-slot>
-                    </x-nav-link>
-
+                    <x-nav-link href="{{ route('admin.grades.index') }}" icon="las la-clipboard-list" :active="Request::routeIs('admin.grades.*')">Nilai</x-nav-link>
                 {{-- GURU MENU --}}
                 @elseif(auth()->user()->role_id == 2)
                     <x-nav-link href="{{ route('teacher.dashboard.index') }}" icon="las la-tachometer-alt" :active="Request::routeIs('teacher.dashboard.*')">Dashboard</x-nav-link>

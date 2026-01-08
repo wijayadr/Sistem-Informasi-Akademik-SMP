@@ -44,8 +44,8 @@ Route::prefix('admin-panel')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', \App\Livewire\AdminPanel\Dashboard\Index::class)->name('admin.dashboard');
 
-        // Teacher Panel
-
+        Route::get('/attendance', App\Livewire\AdminPanel\Attendances\Index::class)->name('admin.attendances.index');
+        Route::get('/grades', App\Livewire\AdminPanel\Grades\Index::class)->name('admin.grades.index');
 
         // Master Data
         Route::get('/academic-years', App\Livewire\AdminPanel\AcademicYears\Index::class)->name('admin.academic-years.index');

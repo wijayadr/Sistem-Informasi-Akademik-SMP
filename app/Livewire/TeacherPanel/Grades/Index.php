@@ -59,6 +59,7 @@ class Index extends Component
         if (empty($this->academic_year_id)) {
             $activeAcademicYear = AcademicYear::where('status', 'active')->first();
             $this->academic_year_id = $activeAcademicYear?->id ?? '';
+            $this->form->academic_year_id = $this->academic_year_id;
         }
     }
 
@@ -116,6 +117,7 @@ class Index extends Component
 
     public function updatedAcademicYearId(): void
     {
+        $this->form->academic_year_id = $this->academic_year_id;
         $this->initListsForFields();
         $this->resetPage();
         $this->reset(['search', 'class_filter', 'subject_filter', 'component_filter']);
